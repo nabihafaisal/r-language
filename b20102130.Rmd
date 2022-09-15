@@ -1,0 +1,191 @@
+---
+title: "Assignment"
+author: "nabiha faisal"
+date: "1/19/2022"
+output: word_document
+---
+
+```{r}
+data(rock)  
+head(rock) 
+dim(rock) 
+#there are 48row and 4 col in this data
+
+print(summary(rock))
+
+
+
+```                   
+#2.plots
+-----------------------
+```{r}
+
+library(ggplot2)
+attach(rock)
+
+
+hist(shape,breaks= 15,  col = 'red',
+     xlab= 'shape', 
+     main = 'shape of rock')
+#graph shows the max observation lies between 0.1 and 0.2 and it is roughly bell shaped
+boxplot(area ~ peri, main="Fig.-1: Boxplot of shape of four type of rock", col= rainbow(3))
+#graph shows as area in creases the perimeter in pixels also increase
+plot(shape,perm, col = "Blue")
+
+scatter.smooth(x=area,y=shape,main="rock")
+
+barplot(shape, main="shape of rocks",
+   xlab="shape")
+#the biggest rock shape is greater than 0.4
+```
+#3.correlation
+------------------------
+```{r}
+
+cor(rock)
+
+#area is closely related to peri(perimeter in pixels of the rock)
+#shape is closely related to perm of the rock
+
+
+# -----------------------------------------------------------------------------
+library(corrplot)
+
+cor.mat.rock = cor(rock)
+corrplot(cor.mat.rock)
+
+```
+
+#3.confidence interval
+-------------------------------
+```{r}
+
+
+library(Rmisc)
+attach(rock)
+
+CI(shape, ci = 0.95) # Calculates the confidence interval of a vector of data.
+
+#mean lies between the confidence interval we accept the null hypothesis
+
+plot(density(shape))
+shapiro.test(shape)
+# p value <0.05 so the data is not normall distributed
+
+
+```
+
+# 4.Hypothesis testing
+# -------------------
+```{r}
+
+library(stats)
+
+# One sample t-test
+# -------------------
+t.test(rock$shape, mu = 0.21) # to test: Is the mean value of mpg differ from 20 or not?
+#alternative hypoyhesis  not rejected
+t.test(rock$shape, mu =0.21 , alternative = 'greater') # if you want to test on sided alternative.
+library(gginference)
+ggttest(t.test(rock$shape, mu = 0.21))
+# 
+# ----------------------------------------------
+
+
+
+
+
+```
+#5.Chi-square test
+# ---------------
+```{r}
+
+attach(rock)
+
+
+chisq.test(perm,shape)
+#there is no association between the shape and permiablity of rock
+chisq.test(area,shape)
+#there is slight association between the area and shape
+# --------------------
+```
+
+#6.Analysis of Variance
+# --------------------
+```{r}
+ 
+attach(rock)
+
+# ONE WAY ANOVA 
+
+boxplot(shape ~area, col= rainbow(5))
+
+
+model1 <- aov(shape ~area)
+summary(model1)
+
+#F value is greater than P value so we will reject the null hypothesisand thus the shape per area is not equal.
+#null hypothesis=shape per area is equal
+#alternative hypothesis= shape per area not equal.
+
+``````
+
+# 7.Linear and Multiple Regression Models:
+# --------------------------------------
+```{r}
+# Linear Regression line formula:
+# -------------------------------
+attach(rock)
+
+fit.LR <- lm(area ~ shape, data = rock)
+summary(fit.LR)
+#equation:
+#area=8465+(-5855)shape
+#comments:
+#intercept is significant for this segregation
+#regulation model in not good overall 
+#corroletion between area and shape is 18%
+#p value shows that with decrease in shape will result in increase in area
+
+scatter.smooth(x=area,y=shape,main="rock")
+require(ggplot2)
+ggplot(rock,aes(y=shape,x=area))+geom_point()+geom_smooth(method = "lm")
+#plot shows us the linearity and independence of observation 
+
+
+
+##t test for intercept
+
+# Multiple Regression line formula:
+# -------------------------------
+
+
+fit.MR <- lm(area ~ shape + peri + perm, data = rock)
+summary(fit.MR)
+#equation:
+#area=-407.06+2992shape+2.19peri+2.54perm
+#intercept is not significant for this segregation
+#change in shape is not significant with change in area  whereas change in  perimeter and permiability are highly significant with change in area
+#corroletion between area and these three variables is 88%
+
+  
+
+#t test for intercept 
+#________________________
+
+#t_{b_{0}}=\frac{b_{0}-\beta_{0}}{s_{b_{0}}}
+
+#t test for slope
+#__________________
+
+#t_{b_{1}}=\frac{b_{1}-\beta_{1}}{s_{b_{1}}}  
+ 
+  
+
+# Is the overall regression model suitable?
+# ---------------------------------------
+anova(fit.LR)  # Test difference in slopes (joint F-test)
+#f value is grater than p value so we will reject null hypothesis
+# The F-statistic value tells result is not good overall
+
+```
